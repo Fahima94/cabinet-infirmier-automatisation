@@ -39,13 +39,14 @@ Fiche Google Maps ──► Landing (charte lisible par des seniors)
                           ▼
                  Supabase : auth · rôles · RLS
                  table demande (nouvelle → à rappeler → confirmée / refusée → archive)
-                    │                 │                    │
-                    ▼                 ▼                    ▼
-            WhatsApp Business   Google Agenda        Vue « Ma tournée »
-            (notification,      (passage confirmé:   (Google Maps +
-             confirmation)       prénom, commune,     itinéraire)
-                                 créneau)
+                    │                    │                        │
+                    ▼                    ▼                        ▼
+            WhatsApp Business      Google Agenda          Google Maps : « Ma tournée »
+            (notification,         (passage confirmé :    passages du jour dans l'ordre,
+             confirmation)          prénom, créneau)      itinéraire en un geste
 ```
+
+**Google Maps sert deux fois :** pour être **trouvé** (la fiche du cabinet) et pour **organiser les tournées** (les passages du jour placés sur la carte, dans l'ordre, avec l'itinéraire). C'est ce second usage qui remplace le cahier papier.
 
 ## 🗺️ Plan d'action : Epic › Features › Tickets
 
@@ -58,7 +59,7 @@ Fiche Google Maps ──► Landing (charte lisible par des seniors)
 | 3 | **Recevoir les demandes** | Formulaire relié à Supabase, statuts | ⚪ à faire |
 | 4 | **Notifier sur WhatsApp** | Compte Meta et modèles, notification, confirmation en un geste | ⚪ à faire |
 | 5 | **Travailler à deux** | Une demande prise par l'une apparaît prise chez l'autre | ⚪ à faire |
-| 6 | **Organiser la tournée** | Vue « Ma tournée » sur Google Maps, export Agenda | ⚪ à faire |
+| 6 | **Organiser les tournées avec Google Maps** | Passages du jour sur la carte, ordre de passage, itinéraire ; export Agenda | ⚪ à faire |
 | 7 | **Archiver** | Demandes traitées archivées, durée de conservation RGPD | ⚪ à faire |
 
 Le détail ticket par ticket est dans [docs/TICKETS.md](docs/TICKETS.md).

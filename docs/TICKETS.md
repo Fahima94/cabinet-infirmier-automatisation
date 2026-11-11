@@ -26,8 +26,11 @@ Règle permanente : **aucune donnée de santé** (ni motif de soin, ni ordonnanc
 ## Feature 5 · Travailler à deux
 - [ ] T16 · Une demande prise par l'une apparaît prise chez l'autre (`prise_par`) — *Dev Supabase*
 
-## Feature 6 · Organiser la tournée
-- [ ] T17 · Vue « Ma tournée » : passages du jour sur Google Maps, bouton Itinéraire — *Dev + Designer*
+## Feature 6 · Organiser les tournées avec Google Maps
+- [x] Schéma : adresse, date de passage et ordre de tournée sur chaque demande confirmée — *Dev Supabase*
+- [ ] Adresse vérifiée par l'API Google Maps à la confirmation (géocodage) — *Dev*
+- [ ] T17 · Vue « Ma tournée » : passages du jour sur la carte, dans l'ordre, bouton Itinéraire vers Maps ou Waze — *Dev + Designer*
+- [ ] Ordre de passage proposé par Google Maps (itinéraire optimisé), modifiable par l'infirmière — *Automatisation*
 - [ ] Passage confirmé → événement Google Agenda (prénom, commune, créneau, rien d'autre) — *Automatisation*
 
 ## Feature 7 · Archiver

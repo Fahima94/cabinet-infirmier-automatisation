@@ -34,6 +34,9 @@ create table demande (
   telephone         text not null check (telephone ~ '^[0-9 +().-]{8,20}$'),
   commune           text not null check (char_length(commune) <= 80),
   creneau_souhaite  text check (char_length(creneau_souhaite) <= 80),
+  adresse           text check (char_length(adresse) <= 200),   -- complétée à la confirmation, pour la tournée
+  passage_le        timestamptz,                                  -- passage confirmé : alimente Agenda et « Ma tournée »
+  ordre_tournee     smallint,                                     -- ordre de passage calculé avec Google Maps
   source            text default 'landing',          -- ex. 'maps' via ?src=maps
   statut            statut_demande not null default 'nouvelle',
   prise_par         uuid references membre(id),      -- évite les doublons entre associées
@@ -42,6 +45,7 @@ create table demande (
 );
 
 create index demande_cabinet_statut on demande (cabinet_id, statut) where archived_at is null;
+create index demande_tournee on demande (cabinet_id, passage_le) where statut = 'confirmee';
 
 -- ---------------------------------------------------------------------
 -- RLS : chaque membre ne voit que son cabinet ; le public ne fait qu'insérer
@@ -64,7 +68,8 @@ create policy "membre lit son équipe" on membre
 -- Le formulaire public peut déposer une demande, et rien d'autre
 create policy "public dépose une demande" on demande
   for insert to anon
-  with check (statut = 'nouvelle' and prise_par is null and archived_at is null);
+  with check (statut = 'nouvelle' and prise_par is null and archived_at is null
+              and passage_le is null and ordre_tournee is null);
 
 create policy "membre lit les demandes du cabinet" on demande
   for select to authenticated using (est_membre(cabinet_id));

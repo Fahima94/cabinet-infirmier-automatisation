@@ -147,7 +147,7 @@
 <footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées. Distances et durées de soin sont simulées ; les liens Maps et Waze ouvrent le calcul réel.</footer>
 </main>
 <script>
-const MARGE=10;
+const MARGE=5;
 const stops=[
  {code:"P-014",soin:"Injection",dur:15,addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
  {code:"P-031",soin:"Pansement",dur:20,addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
@@ -163,7 +163,7 @@ function fmt(n){return n.toFixed(1).replace('.',',')}
 function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
 function render(){
   const box=document.getElementById('stops'); box.innerHTML='';
-  let km=0,trajet=0,soins=0,clock=7*60+30;
+  let km=0,trajet=0,soins=0,clock=8*60+30;
   const lines=["Bonjour Julie, voici ta tournée de lundi :"];
   stops.forEach(function(s,i){
     km+=s.km; trajet+=s.min;
@@ -187,7 +187,7 @@ function render(){
   document.getElementById('k2').textContent=fmt(km)+" km";
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
-  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ à 07:30, 10 minutes de marge entre deux passages.";
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 08:15, premier patient à 08:30, 5 minutes de marge entre deux passages.";
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");

@@ -59,7 +59,10 @@
   .wait{background:#fdf3e4;color:var(--warn)}
   footer{color:var(--muted);font-size:12.5px;margin-top:22px}
   .note{font-size:12px;color:var(--muted);margin-top:10px}
+  #map .pin{background:#0f766e;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 <header><div class="wrap">
@@ -68,6 +71,7 @@
 </div></header>
 <nav><div class="wrap">
   <button class="tab" aria-selected="true" data-p="tournee">Tournée du jour</button>
+  <button class="tab" aria-selected="false" data-p="carte">Carte</button>
   <button class="tab" aria-selected="false" data-p="rappels">Journal des rappels</button>
   <button class="tab" aria-selected="false" data-p="rdv">Prise de rendez-vous</button>
 </div></nav>
@@ -83,7 +87,9 @@
   <div class="grid">
     <div class="card">
       <h2>Tournée du lundi 24 novembre · Julie</h2>
-      <p class="hint">Chaque heure de passage intègre le temps de soin estimé et le trajet depuis l'étape précédente. Les liens ouvrent l'itinéraire réel, avec le trafic du moment.</p>
+      <label for="mode">Mode de déplacement</label>
+      <select id="mode"><option value="voiture">En voiture (+10 min de stationnement à chaque passage)</option><option value="trottinette">Trottinette ou à pied</option></select>
+      <p class="hint" style="margin-top:12px">Chaque heure de passage intègre le temps de soin estimé et le trajet depuis l'étape précédente. Les liens ouvrent l'itinéraire réel, avec le trafic du moment.</p>
       <div id="stops"></div>
       <p class="note" id="totaux"></p>
     </div>
@@ -99,6 +105,14 @@
         <p class="meta">Message prérempli · l'infirmière répond « OK » ou signale un imprévu</p>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="panel" id="carte">
+  <div class="card">
+    <h2>Zone Ivry · Vitry · Choisy-le-Roi</h2>
+    <p class="hint">Ordre de passage et trajet réel entre les neuf adresses. Chaque étape reste cliquable pour ouvrir l'itinéraire dans Maps ou Waze.</p>
+    <div id="map" style="height:520px;border-radius:10px;border:1px solid var(--line)"></div>
   </div>
 </section>
 
@@ -147,27 +161,29 @@
 <footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées. Distances et durées de soin sont simulées ; les liens Maps et Waze ouvrent le calcul réel.</footer>
 </main>
 <script>
-const MARGE=5;
+const PARK={voiture:10,trottinette:0};
 const stops=[
- {code:"P-014",soin:"Injection",dur:15,addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
- {code:"P-031",soin:"Pansement",dur:20,addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
- {code:"P-007",soin:"Prise de sang",dur:10,addr:"8 rue Jean Jaurès, Charenton-le-Pont",km:3.4,min:13,traffic:"dense",lat:48.8211,lon:2.4142},
- {code:"P-022",soin:"Suivi post-opératoire",dur:30,addr:"27 rue de Paris, Charenton-le-Pont",km:1.2,min:5,traffic:"fluide",lat:48.8196,lon:2.4128},
- {code:"P-018",soin:"Pansement",dur:20,addr:"3 rue Raspail, Ivry-sur-Seine",km:2.6,min:10,traffic:"dense",lat:48.8127,lon:2.3851},
- {code:"P-045",soin:"Injection",dur:15,addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874},
- {code:"P-052",soin:"Pansement lourd",dur:25,addr:"14 rue Marceau, Ivry-sur-Seine",km:2.2,min:9,traffic:"dense",lat:48.8118,lon:2.3839},
- {code:"P-063",soin:"Injection",dur:15,addr:"6 rue de l'Église, Alfortville",km:2.8,min:11,traffic:"fluide",lat:48.8055,lon:2.4202},
- {code:"P-071",soin:"Prise de sang",dur:20,addr:"33 quai Blanqui, Alfortville",km:1.6,min:6,traffic:"fluide",lat:48.8031,lon:2.4226}
+ {code:"P-014",soin:"Injection",dur:15,addr:"12 rue des Lilas, Ivry-sur-Seine",km:0,min:0,traffic:"fluide",lat:48.8135,lon:2.3885},
+ {code:"P-031",soin:"Pansement",dur:20,addr:"45 avenue de Verdun, Ivry-sur-Seine",km:1.6,min:6,traffic:"fluide",lat:48.8102,lon:2.3912},
+ {code:"P-018",soin:"Pansement",dur:20,addr:"27 rue Camille Groult, Vitry-sur-Seine",km:2.9,min:11,traffic:"dense",lat:48.7906,lon:2.3908},
+ {code:"P-052",soin:"Pansement lourd",dur:25,addr:"14 rue Marceau, Vitry-sur-Seine",km:1.4,min:6,traffic:"fluide",lat:48.7875,lon:2.3950},
+ {code:"P-063",soin:"Injection",dur:15,addr:"6 avenue Paul Vaillant-Couturier, Vitry-sur-Seine",km:1.8,min:7,traffic:"dense",lat:48.7929,lon:2.4009},
+ {code:"P-007",soin:"Prise de sang",dur:10,addr:"8 rue Jean Jaurès, Choisy-le-Roi",km:4.6,min:15,traffic:"dense",lat:48.7671,lon:2.4118},
+ {code:"P-071",soin:"Prise de sang",dur:20,addr:"33 quai Blanqui, Choisy-le-Roi",km:1.5,min:6,traffic:"fluide",lat:48.7642,lon:2.4066},
+ {code:"P-045",soin:"Injection",dur:15,addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:5.3,min:17,traffic:"bloque",lat:48.8078,lon:2.3874},
+ {code:"P-022",soin:"Suivi post-opératoire",dur:30,addr:"27 rue de Paris, Ivry-sur-Seine",km:1.9,min:8,traffic:"fluide",lat:48.8100,lon:2.4010}
 ];
 function fmt(n){return n.toFixed(1).replace('.',',')}
 function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
 function render(){
+  const mode=document.getElementById('mode').value;
+  const marge=5+(PARK[mode]||0);
   const box=document.getElementById('stops'); box.innerHTML='';
   let km=0,trajet=0,soins=0,clock=8*60+30;
   const lines=["Bonjour Julie, voici ta tournée de lundi :"];
   stops.forEach(function(s,i){
     km+=s.km; trajet+=s.min;
-    if(i>0){clock+=s.min+MARGE;}
+    if(i>0){clock+=s.min+marge;}
     const arrive=clock;
     clock=arrive+s.dur;
     soins+=s.dur;
@@ -187,7 +203,7 @@ function render(){
   document.getElementById('k2').textContent=fmt(km)+" km";
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
-  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 08:15, premier patient à 08:30, 5 minutes de marge entre deux passages.";
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ à 08:15, premier patient à 08:30, "+(mode==='voiture'?"10 minutes de stationnement et 5 minutes de marge par passage.":"5 minutes de marge par passage, sans stationnement.");
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
@@ -207,7 +223,23 @@ document.querySelectorAll('.tab').forEach(function(b){
     document.getElementById(b.dataset.p).classList.add('on');
   });
 });
-document.getElementById('envoyer').addEventListener('click',function(){
+document.getElementById('mode').addEventListener('change',render);
+let map=null;
+function initMap(){
+  if(map){map.invalidateSize();return;}
+  map=L.map('map',{scrollWheelZoom:false});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+  const pts=[];
+  stops.forEach(function(s,i){
+    const icon=L.divIcon({className:'',html:'<div class="pin">'+(i+1)+'</div>',iconSize:[24,24],iconAnchor:[12,12]});
+    L.marker([s.lat,s.lon],{icon:icon}).addTo(map).bindPopup('<b>'+(i+1)+'. '+s.code+'</b><br>'+s.soin+' · '+s.dur+' min<br>'+s.addr);
+    pts.push([s.lat,s.lon]);
+  });
+  L.polyline(pts,{color:'#0f766e',weight:3,opacity:.7,dashArray:'6 6'}).addTo(map);
+  map.fitBounds(pts,{padding:[30,30]});
+}
+document.querySelector('[data-p="carte"]').addEventListener('click',function(){setTimeout(initMap,60)});
+ document.getElementById('envoyer').addEventListener('click',function(){
   var soin=document.getElementById('soin').value.toLowerCase();
   var jour=document.getElementById('jour').value.toLowerCase();
   var heure=document.getElementById('heure').value.replace('–','et');

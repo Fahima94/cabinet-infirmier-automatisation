@@ -91,6 +91,8 @@
       <select id="mode"><option value="voiture">En voiture (+10 min de stationnement à chaque passage)</option><option value="trottinette">Trottinette ou à pied</option></select>
       <p class="hint" style="margin-top:12px">Chaque heure de passage intègre le temps de soin estimé et le trajet depuis l'étape précédente. Les liens ouvrent l'itinéraire réel, avec le trafic du moment.</p>
       <div id="stops"></div>
+      <h3 style="font-size:13.5px;margin:18px 0 6px">Notes urgentes du jour</h3>
+      <textarea id="notes" rows="3" style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit">P-052 : prévoir du matériel stérile supplémentaire. P-007 : patient à jeun, passage avant 9 h. P-045 : code d'immeuble changé, sonner chez le gardien.</textarea>
       <p class="note" id="totaux"></p>
     </div>
     <div class="card">
@@ -207,6 +209,8 @@ function render(){
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
+  const notes=document.getElementById('notes').value.trim();
+  if(notes){lines.push("");lines.push("Notes urgentes : "+notes);}
   lines.push("Bonne journée.");
   const text=lines.join("\n");
   document.getElementById('preview').textContent=text;
@@ -224,6 +228,7 @@ document.querySelectorAll('.tab').forEach(function(b){
   });
 });
 document.getElementById('mode').addEventListener('change',render);
+ document.getElementById('notes').addEventListener('input',render);
 let map=null;
 function initMap(){
   if(map){map.invalidateSize();return;}

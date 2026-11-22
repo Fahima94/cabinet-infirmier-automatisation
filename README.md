@@ -13,6 +13,17 @@
 
 ---
 
+## 🖥️ Démonstration en ligne
+
+**[Ouvrir la démonstration](https://fahima94.github.io/cabinet-infirmier-automatisation/)** — données fictives, aucun nom ni information de santé.
+
+- **Tournée du jour horodatée** : neuf passages sur Ivry-sur-Seine, Vitry-sur-Seine et Choisy-le-Roi, avec temps de soin sur place, temps de trajet et heures d'arrivée calculées.
+- **Mode de déplacement** : en voiture (+10 min de stationnement par passage) ou en trottinette, avec recalcul immédiat de la fin de tournée.
+- **Vue carte** : ordre des passages, tracé du trajet, itinéraire Google Maps et Waze à chaque étape.
+- **Frais** : kilomètres multipliés par un barème modifiable, plus le stationnement, prêts pour la note de frais.
+- **Validation pour facturation** : les actes, les kilomètres et les frais sont figés au moment de la validation, avec date et heure.
+- **Envoi à l'infirmière** : planning complet et notes urgentes transmis par WhatsApp en un clic.
+
 ## 🔍 Ce que l'audit a montré
 
 La demande de départ était « une application ». L'entretien terrain a montré que **le premier besoin était ailleurs**.

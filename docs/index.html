@@ -163,6 +163,7 @@ function render(){
   const lines=["Bonjour Julie, voici ta tournée de lundi :"];
   stops.forEach(function(s,i){
     km+=s.km; trajet+=s.min;
+    if(i>0){clock+=s.min;}
     const arrive=clock;
     clock=arrive+s.dur;
     soins+=s.dur;
@@ -182,7 +183,7 @@ function render(){
   document.getElementById('k2').textContent=fmt(km)+" km";
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
-  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 07:30, marge de 10 minutes entre deux passages.";
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 07:30, trajets inclus.";
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");

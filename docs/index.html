@@ -98,6 +98,10 @@
     <div class="card">
       <h2>Envoi à l'infirmière</h2>
       <p class="hint">Le planning part sur son WhatsApp, avec les heures, les durées de soin et les adresses.</p>
+      <label for="bareme">Barème kilométrique (€/km)</label>
+      <input id="bareme" value="0,53">
+      <label for="parking">Stationnement par passage (€)</label>
+      <input id="parking" value="0">
       <label for="tel">Numéro WhatsApp de l'infirmière</label>
       <input id="tel" placeholder="+33 6 12 34 56 78" value="+33 6 12 34 56 78">
       <button class="btn wa" id="send">Envoyer le planning sur WhatsApp</button>
@@ -180,6 +184,8 @@ function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60
 function render(){
   const mode=document.getElementById('mode').value;
   const marge=5+(PARK[mode]||0);
+  const rate=parseFloat(document.getElementById('bareme').value.replace(',','.'))||0;
+  const parkCost=parseFloat(document.getElementById('parking').value.replace(',','.'))||0;
   const box=document.getElementById('stops'); box.innerHTML='';
   let km=0,trajet=0,soins=0,clock=8*60+30;
   const lines=["Bonjour Julie, voici ta tournée de lundi :"];
@@ -205,9 +211,11 @@ function render(){
   document.getElementById('k2').textContent=fmt(km)+" km";
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
-  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ à 08:15, premier patient à 08:30, "+(mode==='voiture'?"10 minutes de stationnement et 5 minutes de marge par passage.":"5 minutes de marge par passage, sans stationnement.");
+  const frais=km*rate+stops.length*parkCost;
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+" · frais "+frais.toFixed(2).replace('.',',')+" € ("+fmt(km)+" km × "+rate.toFixed(2).replace('.',',')+" €/km"+(parkCost?" + "+parkCost.toFixed(2).replace('.',',')+" € de stationnement par passage":"")+"). Départ à 08:15, premier patient à 08:30, "+(mode==='voiture'?"10 minutes de stationnement et 5 minutes de marge par passage.":"5 minutes de marge par passage, sans stationnement.");
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
+  lines.push("Frais estimés : "+frais.toFixed(2).replace('.',',')+" € ("+fmt(km)+" km × "+rate.toFixed(2).replace('.',',')+" €/km).");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
   const notes=document.getElementById('notes').value.trim();
   if(notes){lines.push("");lines.push("Notes urgentes : "+notes);}
@@ -229,6 +237,8 @@ document.querySelectorAll('.tab').forEach(function(b){
 });
 document.getElementById('mode').addEventListener('change',render);
  document.getElementById('notes').addEventListener('input',render);
+ document.getElementById('bareme').addEventListener('input',render);
+ document.getElementById('parking').addEventListener('input',render);
 let map=null;
 function initMap(){
   if(map){map.invalidateSize();return;}

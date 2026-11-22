@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cabinet infirmier · démonstration</title>
 <style>
-  :root{--ink:#12202b;--muted:#5b6b78;--line:#e3e8ee;--bg:#f6f8fa;--card:#fff;--accent:#0f766e;--accent-soft:#e6f4f1;--warn:#b45309;}
+  :root{--ink:#12202b;--muted:#5b6b78;--line:#e3e8ee;--bg:#f6f8fa;--card:#fff;--accent:#0f766e;--accent-soft:#e6f4f1;--warn:#b45309;--red:#b91c1c}
   *{box-sizing:border-box}
   body{margin:0;font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
   header{background:var(--card);border-bottom:1px solid var(--line);padding:22px 28px}
-  .wrap{max-width:1080px;margin:0 auto}
+  .wrap{max-width:1120px;margin:0 auto}
   .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
   h1{font-size:21px;margin:0;letter-spacing:-.01em}
   .badge{font-size:12px;background:#fff4e5;color:var(--warn);border:1px solid #f3d9b5;padding:2px 8px;border-radius:20px}
@@ -18,22 +18,38 @@
   nav .wrap{display:flex;gap:4px;overflow-x:auto}
   button.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;padding:14px 16px;font:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
   button.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
-  main{padding:26px 28px 60px}
+  main{padding:24px 28px 60px}
   .panel{display:none}
   .panel.on{display:block}
-  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
-  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .bar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  @media(max-width:820px){.bar{grid-template-columns:1fr 1fr}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .kpi b{display:block;font-size:20px;letter-spacing:-.01em}
+  .kpi span{font-size:12.5px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1.35fr .65fr;gap:18px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
   .card h2{font-size:15px;margin:0 0 4px}
-  .card p.hint{margin:0 0 16px;color:var(--muted);font-size:13px}
+  .card p.hint{margin:0 0 14px;color:var(--muted);font-size:13px}
+  .stop{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  .stop .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .stop b{font-size:14px}
+  .stop .addr{font-size:13px;color:var(--muted);margin-top:2px}
+  .legs{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:8px}
+  .legs em{font-style:normal;color:var(--ink)}
+  .traffic{font-size:11.5px;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent)}
+  .traffic.dense{background:#fdf3e4;color:var(--warn)}
+  .traffic.bloque{background:#fdeaea;color:var(--red)}
+  .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .link{font-size:12.5px;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;color:var(--ink);background:#fff}
+  .link:hover{border-color:var(--accent);color:var(--accent)}
+  .link.wa{border-color:#cdeadb;background:#eafaf0;color:#116b3a}
   label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
   input,select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
-  input:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;margin-top:16px;width:100%}
-  .btn:hover{filter:brightness(1.06)}
+  .btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px;width:100%}
+  .btn.wa{background:#1f9d55}
   .phone{background:#e8f0ee;border-radius:14px;padding:12px}
-  .phone .bubble{background:#fff;border-radius:10px;padding:12px 13px;font-size:13.5px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .phone .bubble{background:#fff;border-radius:10px;padding:12px 13px;font-size:13px;white-space:pre-wrap;box-shadow:0 1px 2px rgba(0,0,0,.06)}
   .phone .meta{font-size:11.5px;color:var(--muted);margin:6px 2px 0}
   .stamp{display:inline-block;font-size:11.5px;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:20px;margin-bottom:10px}
   table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card)}
@@ -42,106 +58,54 @@
   .pill{font-size:12px;padding:2px 9px;border-radius:20px;white-space:nowrap}
   .ok{background:var(--accent-soft);color:var(--accent)}
   .wait{background:#fdf3e4;color:var(--warn)}
-  .days{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-  @media(max-width:820px){.days{grid-template-columns:1fr 1fr}}
-  .day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
-  .day h3{font-size:12px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-  .visit{border-left:3px solid var(--accent);background:#fbfdfd;padding:8px 9px;border-radius:6px;margin-bottom:8px}
-  .visit b{display:block;font-size:13px}
-  .visit span{font-size:12px;color:var(--muted)}
-  .visit.amber{border-left-color:#d97706}
-  .chain{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-  .chain span{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 11px;color:var(--muted)}
-  footer{color:var(--muted);font-size:12.5px;margin-top:26px}
+  footer{color:var(--muted);font-size:12.5px;margin-top:22px}
+  .note{font-size:12px;color:var(--muted);margin-top:10px}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <div class="brand"><h1>Cabinet infirmier libéral · démonstration</h1><span class="badge">Données fictives</span></div>
-  <p class="sub">Prise de rendez-vous, planning des tournées et rappels automatiques. Projet anonymisé : aucun nom, aucune donnée de santé réelle.</p>
+  <p class="sub">Tournée optimisée avec temps de trajet, itinéraires Maps et Waze, et envoi du planning à l'infirmière par WhatsApp.</p>
 </div></header>
 <nav><div class="wrap">
-  <button class="tab" aria-selected="true" data-p="rdv">Prise de rendez-vous</button>
-  <button class="tab" aria-selected="false" data-p="tournees">Planning des tournées</button>
+  <button class="tab" aria-selected="true" data-p="tournee">Tournée du jour</button>
   <button class="tab" aria-selected="false" data-p="rappels">Journal des rappels</button>
+  <button class="tab" aria-selected="false" data-p="rdv">Prise de rendez-vous</button>
 </div></nav>
 <main class="wrap">
 
-<section class="panel on" id="rdv">
+<section class="panel on" id="tournee">
+  <div class="bar">
+    <div class="kpi"><b id="k1">6</b><span>patients du jour</span></div>
+    <div class="kpi"><b id="k2">—</b><span>kilomètres estimés</span></div>
+    <div class="kpi"><b id="k3">—</b><span>temps de trajet</span></div>
+    <div class="kpi"><b id="k4">—</b><span>fin de tournée</span></div>
+  </div>
   <div class="grid">
     <div class="card">
-      <h2>Demande de passage</h2>
-      <p class="hint">Le patient choisit un créneau ; la demande part vers la base, l'agenda et la messagerie.</p>
-      <div class="row">
-        <div><label for="nom">Patient (code)</label><input id="nom" value="P-014" ></div>
-        <div><label for="soin">Type de soin</label>
-          <select id="soin"><option>Injection</option><option>Pansement</option><option>Prise de sang</option><option>Suivi post-opératoire</option></select>
-        </div>
-      </div>
-      <div class="row">
-        <div><label for="jour">Jour souhaité</label>
-          <select id="jour"><option>Lundi 24 nov.</option><option>Mardi 25 nov.</option><option>Mercredi 26 nov.</option><option>Jeudi 27 nov.</option><option>Vendredi 28 nov.</option></select>
-        </div>
-        <div><label for="heure">Créneau</label>
-          <select id="heure"><option>07:30 – 09:00</option><option>09:00 – 11:00</option><option>11:00 – 13:00</option><option>16:00 – 18:00</option></select>
-        </div>
-      </div>
-      <label for="adresse">Adresse (rue, étage, code)</label>
-      <input id="adresse" value="12 rue des Lilas, 3e étage, code 4512">
-      <button class="btn" id="envoyer">Envoyer la demande</button>
-      <div class="chain">
-        <span>Formulaire</span><span>Supabase · accès cloisonné</span><span>Make</span><span>WhatsApp</span><span>Google Agenda</span>
-      </div>
+      <h2>Tournée du lundi 24 novembre · Julie</h2>
+      <p class="hint">Ordre calculé par proximité et par horaire de passage. Chaque étape ouvre l'itinéraire dans Maps ou Waze, avec le trafic du moment.</p>
+      <div id="stops"></div>
+      <p class="note">Les distances et durées affichées sont simulées pour la démonstration ; les liens Maps et Waze, eux, ouvrent le calcul réel avec le trafic.</p>
     </div>
     <div class="card">
-      <h2>Ce que voit le patient</h2>
-      <p class="hint">Accusé immédiat, puis confirmation par l'infirmière.</p>
-      <div class="phone">
-        <div class="stamp">WhatsApp Business</div>
-        <div class="bubble" id="msg">Bonjour, votre demande de passage pour une injection le lundi 24 nov. entre 07:30 et 09:00 est enregistrée. Une infirmière confirme le créneau avant 18 h.</div>
-        <p class="meta">Message automatique · aucun détail médical transmis</p>
+      <h2>Envoi à l'infirmière</h2>
+      <p class="hint">Le planning part sur son WhatsApp, avec les horaires, les adresses et le lien de la tournée.</p>
+      <label for="tel">Numéro WhatsApp de l'infirmière</label>
+      <input id="tel" placeholder="+33 6 12 34 56 78" value="+33 6 12 34 56 78">
+      <button class="btn wa" id="send">Envoyer le planning sur WhatsApp</button>
+      <div class="phone" style="margin-top:14px">
+        <div class="stamp">Aperçu du message</div>
+        <div class="bubble" id="preview"></div>
+        <p class="meta">Message prérempli · l'infirmière peut répondre « OK » ou demander un ajustement</p>
       </div>
-      <div style="margin-top:16px;font-size:13.5px;color:var(--muted)">
-        Le créneau est réservé, pas encore confirmé : c'est l'infirmière qui arbitre selon la tournée. Le patient peut annuler d'un mot.
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="panel" id="tournees">
-  <div class="card" style="margin-bottom:16px">
-    <h2>Semaine du 24 au 28 novembre</h2>
-    <p class="hint">Deux tournées par jour, une par infirmière. Les passages en orange demandent un arbitrage.</p>
-  </div>
-  <div class="days">
-    <div class="day"><h3>Lundi 24</h3>
-      <div class="visit"><b>07:30 P-014</b><span>Injection · 15 min</span></div>
-      <div class="visit"><b>08:10 P-031</b><span>Pansement · 20 min</span></div>
-      <div class="visit amber"><b>10:00 P-007</b><span>Hors zone · à replanifier</span></div>
-    </div>
-    <div class="day"><h3>Mardi 25</h3>
-      <div class="visit"><b>07:45 P-002</b><span>Prise de sang · 10 min</span></div>
-      <div class="visit"><b>09:00 P-022</b><span>Suivi post-op · 30 min</span></div>
-    </div>
-    <div class="day"><h3>Mercredi 26</h3>
-      <div class="visit"><b>07:30 P-014</b><span>Injection · 15 min</span></div>
-      <div class="visit"><b>11:30 P-018</b><span>Pansement · 20 min</span></div>
-      <div class="visit amber"><b>17:00 P-045</b><span>Créneau non confirmé</span></div>
-    </div>
-    <div class="day"><h3>Jeudi 27</h3>
-      <div class="visit"><b>08:00 P-031</b><span>Pansement · 20 min</span></div>
-      <div class="visit"><b>09:30 P-009</b><span>Injection · 15 min</span></div>
-    </div>
-    <div class="day"><h3>Vendredi 28</h3>
-      <div class="visit"><b>07:30 P-002</b><span>Prise de sang · 10 min</span></div>
-      <div class="visit"><b>10:15 P-022</b><span>Suivi post-op · 30 min</span></div>
     </div>
   </div>
 </section>
 
 <section class="panel" id="rappels">
   <div class="card" style="margin-bottom:16px">
-    <h2>Rappels de la journée</h2>
+    <h2>Rappels patients de la journée</h2>
     <p class="hint">Chaque message est tracé : envoyé, lu, confirmé ou à relancer.</p>
   </div>
   <table>
@@ -154,25 +118,93 @@
       <tr><td>17:30</td><td>P-007</td><td>Replanification de tournée</td><td><span class="pill wait">Sans réponse</span></td></tr>
     </tbody>
   </table>
-  <footer>Démonstration statique : les données affichées sont inventées. Le dispositif réel repose sur Supabase avec cloisonnement par utilisateur, Make pour les scénarios, l'API WhatsApp Business et Google Agenda.</footer>
 </section>
 
+<section class="panel" id="rdv">
+  <div class="grid">
+    <div class="card">
+      <h2>Demande de passage</h2>
+      <p class="hint">Le patient choisit un créneau ; la demande entre dans la tournée après arbitrage de l'infirmière.</p>
+      <label for="soin">Type de soin</label>
+      <select id="soin"><option>Injection</option><option>Pansement</option><option>Prise de sang</option><option>Suivi post-opératoire</option></select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label for="jour">Jour</label><select id="jour"><option>Lundi 24 nov.</option><option>Mardi 25 nov.</option><option>Mercredi 26 nov.</option></select></div>
+        <div><label for="heure">Créneau</label><select id="heure"><option>07:30 – 09:00</option><option>09:00 – 11:00</option><option>16:00 – 18:00</option></select></div>
+      </div>
+      <label for="adresse">Adresse</label>
+      <input id="adresse" value="12 rue des Lilas, 3e étage, code 4512">
+      <button class="btn" id="envoyer">Envoyer la demande</button>
+    </div>
+    <div class="card">
+      <h2>Ce que voit le patient</h2>
+      <div class="phone">
+        <div class="stamp">WhatsApp Business</div>
+        <div class="bubble" id="msg">Bonjour, votre demande de passage pour une injection le lundi 24 nov. entre 07:30 et 09:00 est enregistrée. Une infirmière confirme le créneau avant 18 h.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées.</footer>
 </main>
 <script>
-  document.querySelectorAll('.tab').forEach(function(b){
-    b.addEventListener('click',function(){
-      document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected','false')});
-      b.setAttribute('aria-selected','true');
-      document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
-      document.getElementById(b.dataset.p).classList.add('on');
-    });
+const stops=[
+ {t:"07:30",code:"P-014",soin:"Injection",addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
+ {t:"08:10",code:"P-031",soin:"Pansement",addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
+ {t:"09:05",code:"P-007",soin:"Prise de sang",addr:"8 rue Jean Jaurès, Charenton-le-Pont",km:3.4,min:13,traffic:"dense",lat:48.8211,lon:2.4142},
+ {t:"10:15",code:"P-022",soin:"Suivi post-opératoire",addr:"27 rue de Paris, Charenton-le-Pont",km:1.2,min:5,traffic:"fluide",lat:48.8196,lon:2.4128},
+ {t:"11:20",code:"P-018",soin:"Pansement",addr:"3 rue Raspail, Ivry-sur-Seine",km:2.6,min:10,traffic:"dense",lat:48.8127,lon:2.3851},
+ {t:"12:10",code:"P-045",soin:"Injection",addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874}
+];
+const dur=15;
+function fmt(n){return n.toFixed(1).replace('.',',')}
+function render(){
+  const box=document.getElementById('stops'); box.innerHTML='';
+  let km=0,min=0,clock=7*60+30;
+  stops.forEach(function(s,i){
+    km+=s.km; min+=s.min;
+    const g="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(s.addr)+"&travelmode=driving";
+    const w="https://waze.com/ul?ll="+s.lat+","+s.lon+"&navigate=yes";
+    const el=document.createElement('div'); el.className='stop';
+    el.innerHTML='<div class="top"><b>'+s.t+' · '+s.code+'</b><span class="traffic '+s.traffic+'">'+(s.traffic==='fluide'?'trafic fluide':s.traffic==='dense'?'trafic dense':'bouchon')+'</span></div>'+
+      '<div class="addr">'+s.soin+' · '+s.addr+'</div>'+
+      '<div class="legs"><span>+'+(i?'depuis l\'étape précédente':'depuis le cabinet')+' : <em>'+fmt(s.km)+' km</em> · <em>'+s.min+' min</em></span></div>'+
+      '<div class="acts"><a class="link" target="_blank" rel="noopener" href="'+g+'">Itinéraire Maps</a>'+
+      '<a class="link" target="_blank" rel="noopener" href="'+w+'">Ouvrir dans Waze</a></div>';
+    box.appendChild(el);
   });
-  document.getElementById('envoyer').addEventListener('click',function(){
-    var soin=document.getElementById('soin').value.toLowerCase();
-    var jour=document.getElementById('jour').value.toLowerCase();
-    var heure=document.getElementById('heure').value.replace('–','et');
-    document.getElementById('msg').textContent='Bonjour, votre demande de passage pour '+soin+' le '+jour+' entre '+heure+' est enregistrée. Une infirmière confirme le créneau avant 18 h.';
+  const end=7*60+30+stops.length*dur+min;
+  document.getElementById('k1').textContent=stops.length;
+  document.getElementById('k2').textContent=fmt(km)+" km";
+  document.getElementById('k3').textContent=min+" min";
+  document.getElementById('k4').textContent=Math.floor(end/60)+"h"+String(end%60).padStart(2,'0');
+  const lines=["Bonjour Julie, voici ta tournée de lundi :"];
+  stops.forEach(function(s){lines.push(s.t+" "+s.code+" · "+s.soin+" · "+s.addr)});
+  lines.push("");
+  lines.push("Total "+fmt(km)+" km, "+min+" min de trajet. Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
+  lines.push("Bonne journée.");
+  const text=lines.join("\n");
+  document.getElementById('preview').textContent=text;
+  document.getElementById('send').onclick=function(){
+    const tel=document.getElementById('tel').value.replace(/[^0-9]/g,'');
+    window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(text),'_blank');
+  };
+}
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected','false')});
+    b.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
+    document.getElementById(b.dataset.p).classList.add('on');
   });
+});
+document.getElementById('envoyer').addEventListener('click',function(){
+  var soin=document.getElementById('soin').value.toLowerCase();
+  var jour=document.getElementById('jour').value.toLowerCase();
+  var heure=document.getElementById('heure').value.replace('–','et');
+  document.getElementById('msg').textContent='Bonjour, votre demande de passage pour '+soin+' le '+jour+' entre '+heure+' est enregistrée. Une infirmière confirme le créneau avant 18 h.';
+});
+render();
 </script>
 </body>
 </html>

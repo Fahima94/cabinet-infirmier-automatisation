@@ -43,7 +43,6 @@
   .acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
   .link{font-size:12.5px;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;color:var(--ink);background:#fff}
   .link:hover{border-color:var(--accent);color:var(--accent)}
-  .link.wa{border-color:#cdeadb;background:#eafaf0;color:#116b3a}
   label{display:block;font-size:13px;font-weight:600;margin:12px 0 5px}
   input,select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
   .btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px;width:100%}
@@ -65,7 +64,7 @@
 <body>
 <header><div class="wrap">
   <div class="brand"><h1>Cabinet infirmier libéral · démonstration</h1><span class="badge">Données fictives</span></div>
-  <p class="sub">Tournée optimisée avec temps de trajet, itinéraires Maps et Waze, et envoi du planning à l'infirmière par WhatsApp.</p>
+  <p class="sub">Tournée horodatée : temps de soin sur place, temps de trajet, itinéraires Maps et Waze, et envoi du planning à l'infirmière par WhatsApp.</p>
 </div></header>
 <nav><div class="wrap">
   <button class="tab" aria-selected="true" data-p="tournee">Tournée du jour</button>
@@ -78,26 +77,26 @@
   <div class="bar">
     <div class="kpi"><b id="k1">6</b><span>patients du jour</span></div>
     <div class="kpi"><b id="k2">—</b><span>kilomètres estimés</span></div>
-    <div class="kpi"><b id="k3">—</b><span>temps de trajet</span></div>
+    <div class="kpi"><b id="k3">—</b><span>trajet + soins</span></div>
     <div class="kpi"><b id="k4">—</b><span>fin de tournée</span></div>
   </div>
   <div class="grid">
     <div class="card">
       <h2>Tournée du lundi 24 novembre · Julie</h2>
-      <p class="hint">Ordre calculé par proximité et par horaire de passage. Chaque étape ouvre l'itinéraire dans Maps ou Waze, avec le trafic du moment.</p>
+      <p class="hint">Chaque heure de passage intègre le temps de soin estimé et le trajet depuis l'étape précédente. Les liens ouvrent l'itinéraire réel, avec le trafic du moment.</p>
       <div id="stops"></div>
-      <p class="note">Les distances et durées affichées sont simulées pour la démonstration ; les liens Maps et Waze, eux, ouvrent le calcul réel avec le trafic.</p>
+      <p class="note" id="totaux"></p>
     </div>
     <div class="card">
       <h2>Envoi à l'infirmière</h2>
-      <p class="hint">Le planning part sur son WhatsApp, avec les horaires, les adresses et le lien de la tournée.</p>
+      <p class="hint">Le planning part sur son WhatsApp, avec les heures, les durées de soin et les adresses.</p>
       <label for="tel">Numéro WhatsApp de l'infirmière</label>
       <input id="tel" placeholder="+33 6 12 34 56 78" value="+33 6 12 34 56 78">
       <button class="btn wa" id="send">Envoyer le planning sur WhatsApp</button>
       <div class="phone" style="margin-top:14px">
         <div class="stamp">Aperçu du message</div>
         <div class="bubble" id="preview"></div>
-        <p class="meta">Message prérempli · l'infirmière peut répondre « OK » ou demander un ajustement</p>
+        <p class="meta">Message prérempli · l'infirmière répond « OK » ou signale un imprévu</p>
       </div>
     </div>
   </div>
@@ -145,43 +144,48 @@
   </div>
 </section>
 
-<footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées.</footer>
+<footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées. Distances et durées de soin sont simulées ; les liens Maps et Waze ouvrent le calcul réel.</footer>
 </main>
 <script>
 const stops=[
- {t:"07:30",code:"P-014",soin:"Injection",addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
- {t:"08:10",code:"P-031",soin:"Pansement",addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
- {t:"09:05",code:"P-007",soin:"Prise de sang",addr:"8 rue Jean Jaurès, Charenton-le-Pont",km:3.4,min:13,traffic:"dense",lat:48.8211,lon:2.4142},
- {t:"10:15",code:"P-022",soin:"Suivi post-opératoire",addr:"27 rue de Paris, Charenton-le-Pont",km:1.2,min:5,traffic:"fluide",lat:48.8196,lon:2.4128},
- {t:"11:20",code:"P-018",soin:"Pansement",addr:"3 rue Raspail, Ivry-sur-Seine",km:2.6,min:10,traffic:"dense",lat:48.8127,lon:2.3851},
- {t:"12:10",code:"P-045",soin:"Injection",addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874}
+ {code:"P-014",soin:"Injection",dur:15,addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
+ {code:"P-031",soin:"Pansement",dur:20,addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
+ {code:"P-007",soin:"Prise de sang",dur:10,addr:"8 rue Jean Jaurès, Charenton-le-Pont",km:3.4,min:13,traffic:"dense",lat:48.8211,lon:2.4142},
+ {code:"P-022",soin:"Suivi post-opératoire",dur:30,addr:"27 rue de Paris, Charenton-le-Pont",km:1.2,min:5,traffic:"fluide",lat:48.8196,lon:2.4128},
+ {code:"P-018",soin:"Pansement",dur:20,addr:"3 rue Raspail, Ivry-sur-Seine",km:2.6,min:10,traffic:"dense",lat:48.8127,lon:2.3851},
+ {code:"P-045",soin:"Injection",dur:15,addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874}
 ];
-const dur=15;
 function fmt(n){return n.toFixed(1).replace('.',',')}
+function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
 function render(){
   const box=document.getElementById('stops'); box.innerHTML='';
-  let km=0,min=0,clock=7*60+30;
+  let km=0,trajet=0,soins=0,clock=7*60+30;
+  const lines=["Bonjour Julie, voici ta tournée de lundi :"];
   stops.forEach(function(s,i){
-    km+=s.km; min+=s.min;
+    km+=s.km; trajet+=s.min;
+    const arrive=clock;
+    clock=arrive+s.dur;
+    soins+=s.dur;
     const g="https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(s.addr)+"&travelmode=driving";
     const w="https://waze.com/ul?ll="+s.lat+","+s.lon+"&navigate=yes";
     const el=document.createElement('div'); el.className='stop';
-    el.innerHTML='<div class="top"><b>'+s.t+' · '+s.code+'</b><span class="traffic '+s.traffic+'">'+(s.traffic==='fluide'?'trafic fluide':s.traffic==='dense'?'trafic dense':'bouchon')+'</span></div>'+
+    el.innerHTML='<div class="top"><b>'+hhmm(arrive)+' → '+hhmm(clock)+' · '+s.code+'</b><span class="traffic '+s.traffic+'">'+(s.traffic==='fluide'?'trafic fluide':s.traffic==='dense'?'trafic dense':'bouchon')+'</span></div>'+
       '<div class="addr">'+s.soin+' · '+s.addr+'</div>'+
-      '<div class="legs"><span>+'+(i?'depuis l\'étape précédente':'depuis le cabinet')+' : <em>'+fmt(s.km)+' km</em> · <em>'+s.min+' min</em></span></div>'+
+      '<div class="legs"><span><em>'+s.dur+' min sur place</em></span>'+
+      '<span>'+(i?'depuis l\'étape précédente':'depuis le cabinet')+' : <em>'+fmt(s.km)+' km</em> · <em>'+s.min+' min</em></span></div>'+
       '<div class="acts"><a class="link" target="_blank" rel="noopener" href="'+g+'">Itinéraire Maps</a>'+
       '<a class="link" target="_blank" rel="noopener" href="'+w+'">Ouvrir dans Waze</a></div>';
     box.appendChild(el);
+    lines.push(hhmm(arrive)+" "+s.code+" · "+s.soin+" ("+s.dur+" min) · "+s.addr);
   });
-  const end=7*60+30+stops.length*dur+min;
   document.getElementById('k1').textContent=stops.length;
   document.getElementById('k2').textContent=fmt(km)+" km";
-  document.getElementById('k3').textContent=min+" min";
-  document.getElementById('k4').textContent=Math.floor(end/60)+"h"+String(end%60).padStart(2,'0');
-  const lines=["Bonjour Julie, voici ta tournée de lundi :"];
-  stops.forEach(function(s){lines.push(s.t+" "+s.code+" · "+s.soin+" · "+s.addr)});
+  document.getElementById('k3').textContent=trajet+" + "+soins+" min";
+  document.getElementById('k4').textContent=hhmm(clock);
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 07:30, marge de 10 minutes entre deux passages.";
   lines.push("");
-  lines.push("Total "+fmt(km)+" km, "+min+" min de trajet. Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
+  lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
+  lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");
   lines.push("Bonne journée.");
   const text=lines.join("\n");
   document.getElementById('preview').textContent=text;

@@ -147,13 +147,17 @@
 <footer>Démonstration statique. Le dispositif réel : Supabase avec cloisonnement par utilisateur, Make pour les scénarios, API WhatsApp Business, Google Agenda et Maps pour les tournées. Distances et durées de soin sont simulées ; les liens Maps et Waze ouvrent le calcul réel.</footer>
 </main>
 <script>
+const MARGE=10;
 const stops=[
  {code:"P-014",soin:"Injection",dur:15,addr:"12 rue des Lilas, Ivry-sur-Seine",km:1.8,min:6,traffic:"fluide",lat:48.8135,lon:2.3885},
  {code:"P-031",soin:"Pansement",dur:20,addr:"45 avenue de Verdun, Ivry-sur-Seine",km:2.1,min:8,traffic:"fluide",lat:48.8102,lon:2.3912},
  {code:"P-007",soin:"Prise de sang",dur:10,addr:"8 rue Jean Jaurès, Charenton-le-Pont",km:3.4,min:13,traffic:"dense",lat:48.8211,lon:2.4142},
  {code:"P-022",soin:"Suivi post-opératoire",dur:30,addr:"27 rue de Paris, Charenton-le-Pont",km:1.2,min:5,traffic:"fluide",lat:48.8196,lon:2.4128},
  {code:"P-018",soin:"Pansement",dur:20,addr:"3 rue Raspail, Ivry-sur-Seine",km:2.6,min:10,traffic:"dense",lat:48.8127,lon:2.3851},
- {code:"P-045",soin:"Injection",dur:15,addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874}
+ {code:"P-045",soin:"Injection",dur:15,addr:"90 boulevard Paul Vaillant-Couturier, Ivry",km:1.9,min:7,traffic:"bloque",lat:48.8078,lon:2.3874},
+ {code:"P-052",soin:"Pansement lourd",dur:25,addr:"14 rue Marceau, Ivry-sur-Seine",km:2.2,min:9,traffic:"dense",lat:48.8118,lon:2.3839},
+ {code:"P-063",soin:"Injection",dur:15,addr:"6 rue de l'Église, Alfortville",km:2.8,min:11,traffic:"fluide",lat:48.8055,lon:2.4202},
+ {code:"P-071",soin:"Prise de sang",dur:20,addr:"33 quai Blanqui, Alfortville",km:1.6,min:6,traffic:"fluide",lat:48.8031,lon:2.4226}
 ];
 function fmt(n){return n.toFixed(1).replace('.',',')}
 function hhmm(m){return String(Math.floor(m/60)).padStart(2,'0')+":"+String(m%60).padStart(2,'0')}
@@ -163,7 +167,7 @@ function render(){
   const lines=["Bonjour Julie, voici ta tournée de lundi :"];
   stops.forEach(function(s,i){
     km+=s.km; trajet+=s.min;
-    if(i>0){clock+=s.min;}
+    if(i>0){clock+=s.min+MARGE;}
     const arrive=clock;
     clock=arrive+s.dur;
     soins+=s.dur;
@@ -183,7 +187,7 @@ function render(){
   document.getElementById('k2').textContent=fmt(km)+" km";
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
-  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ du cabinet à 07:30, trajets inclus.";
+  document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+". Départ à 07:30, 10 minutes de marge entre deux passages.";
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
   lines.push("Itinéraires : https://fahima94.github.io/cabinet-infirmier-automatisation/");

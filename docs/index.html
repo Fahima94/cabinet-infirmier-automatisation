@@ -94,6 +94,8 @@
       <h3 style="font-size:13.5px;margin:18px 0 6px">Notes urgentes du jour</h3>
       <textarea id="notes" rows="3" style="width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit">P-052 : prévoir du matériel stérile supplémentaire. P-007 : patient à jeun, passage avant 9 h. P-045 : code d'immeuble changé, sonner chez le gardien.</textarea>
       <p class="note" id="totaux"></p>
+      <button class="btn" id="valider" style="margin-top:12px">Valider la tournée pour facturation</button>
+      <p class="note" id="valstat">Tournée non validée : les frais restent en brouillon.</p>
     </div>
     <div class="card">
       <h2>Envoi à l'infirmière</h2>
@@ -212,6 +214,7 @@ function render(){
   document.getElementById('k3').textContent=trajet+" + "+soins+" min";
   document.getElementById('k4').textContent=hhmm(clock);
   const frais=km*rate+stops.length*parkCost;
+  window.__km=km; window.__frais=frais; window.__soins=soins; window.__fin=clock;
   document.getElementById('totaux').textContent=stops.length+" passages · "+soins+" min de soins · "+trajet+" min de trajet · "+fmt(km)+" km · fin à "+hhmm(clock)+" · frais "+frais.toFixed(2).replace('.',',')+" € ("+fmt(km)+" km × "+rate.toFixed(2).replace('.',',')+" €/km"+(parkCost?" + "+parkCost.toFixed(2).replace('.',',')+" € de stationnement par passage":"")+"). Départ à 08:15, premier patient à 08:30, "+(mode==='voiture'?"10 minutes de stationnement et 5 minutes de marge par passage.":"5 minutes de marge par passage, sans stationnement.");
   lines.push("");
   lines.push("Total : "+soins+" min de soins, "+trajet+" min de trajet, "+fmt(km)+" km. Fin prévue "+hhmm(clock)+".");
@@ -234,6 +237,17 @@ document.querySelectorAll('.tab').forEach(function(b){
     document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on')});
     document.getElementById(b.dataset.p).classList.add('on');
   });
+});
+document.getElementById('valider').addEventListener('click',function(){
+  const now=new Date();
+  const jour=String(now.getDate()).padStart(2,'0')+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
+  const heure=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const el=document.getElementById('valstat');
+  el.textContent='Validée le '+jour+' à '+heure+' par Julie · '+stops.length+' actes · '+window.__km.toFixed(1).replace('.',',')+' km · '+window.__frais.toFixed(2).replace('.',',')+' € de frais. Prête pour la facturation.';
+  el.style.color='#0f766e';
+  document.getElementById('valider').textContent='Tournée validée';
+  document.getElementById('valider').disabled=true;
+  document.getElementById('valider').style.opacity=.6;
 });
 document.getElementById('mode').addEventListener('change',render);
  document.getElementById('notes').addEventListener('input',render);
